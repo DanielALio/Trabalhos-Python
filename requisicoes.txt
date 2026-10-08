@@ -1,0 +1,63 @@
+ENCONTRO 18 — COMO A WEB FUNCIONA POR DENTRO
+
+PEDIDO 1
+endereço: https://viacep.com.br/ws/15500003/json/
+método: GET
+status: 200
+tipo: application/json; charset=utf-8
+o que voltou: o endereço do CEP em JSON (Rua Minas Gerais, Patrimônio Novo, Votuporanga).
+
+PEDIDO 2 — PREENCHER COM A OBSERVAÇÃO DO NAVEGADOR (F12 > REDE)
+site escolhido: UNIFEV (ou outro site usado na atividade)
+endereço: [copiar o endereço da primeira requisição, que é o HTML]
+método: GET
+status: [copiar o status observado]
+tipo: [copiar o Content-Type observado]
+o que voltou: documento HTML da página.
+
+PEDIDO 3 — PREENCHER COM A IMAGEM SELECIONADA EM F12 > REDE > IMG
+endereço: [copiar o endereço da requisição da imagem]
+método: GET
+status: [copiar o status observado]
+tipo: [copiar o Content-Type observado, normalmente image/...]
+o que voltou: arquivo de imagem usado na página.
+
+NÚMERO TOTAL DE REQUISIÇÕES DA PÁGINA
+[Anotar o número exibido no rodapé da aba Rede depois de marcar Desativar cache e apertar F5. O número varia conforme a página e os recursos carregados.]
+
+PEDIDO 4
+endereço: https://viacep.com.br/ws/15500003/json/
+método: GET
+status: 200
+tipo: application/json; charset=utf-8
+o que voltou: JSON com campos como cep, logradouro, bairro e localidade. Para esse CEP, o logradouro é Rua Minas Gerais, o bairro é Patrimônio Novo e a localidade é Votuporanga.
+
+PEDIDO 5
+endereço: https://viacep.com.br/ws/123/json/
+método: GET
+status esperado: 400
+status observado no roteiro: 400
+tipo: application/json (confirme na aba Cabeçalhos do navegador)
+o que voltou: resposta de erro porque o CEP tem apenas 3 dígitos e não atende ao formato esperado.
+
+PEDIDO 6
+endereço: https://viacep.com.br/ws/99999999/json/
+método: GET
+status: 200
+tipo: application/json; charset=utf-8
+o que voltou: JSON indicando CEP inexistente, com o campo {"erro": "true"}.
+
+RESPOSTA DA PERGUNTA SOBRE O PEDIDO 6
+O status 200 indica que o pedido HTTP foi processado; ele não garante que o CEP exista. A informação de erro está no conteúdo do JSON, no campo "erro". Se o formulário não verificar esse campo, ele pode tentar preencher os campos de endereço com dados que não existem, deixando-os vazios ou com valores indefinidos.
+
+RESPOSTA: POR QUE OS PEDIDOS 5 E 6 FALHAM DE JEITOS DIFERENTES?
+O CEP 123 provoca HTTP 400. O urllib transforma esse status em HTTPError, por isso o programa interrompe se a exceção não for tratada. Já o CEP 99999999 retorna HTTP 200 e um JSON com "erro": "true"; não ocorre HTTPError. Se o programa tentar acessar dados["logradouro"], recebe KeyError, porque essa chave não existe na resposta.
+
+RESPOSTA: O QUE SIGNIFICAM OS STATUS?
+2xx: pedido atendido com sucesso (exemplo: 200 OK).
+3xx: redirecionamento ou uso de uma resposta em cache (exemplo: 304 Not Modified).
+4xx: problema no pedido do cliente (exemplos: 400 Bad Request e 404 Not Found).
+5xx: falha no servidor (exemplo: 500 Internal Server Error).
+
+DESAFIO EXTRA — O OBJETO Livro EM JSON
+O json.dumps(livro) provoca TypeError porque uma instância personalizada de Livro não é automaticamente serializável em JSON. A camada da aplicação que precisa traduzir o objeto para um dicionário deve fazer essa conversão; neste projeto, essa tradução fica na camada da API, no arquivo api.py dentro da pasta sistema/.
